@@ -52,6 +52,15 @@ parser.add_argument("--w_bit", type=int, default=None)
 parser.add_argument("--q_group_size", type=int, default=-1)
 parser.add_argument("--no_zero_point", action="store_true", help="disable zero_point")
 parser.add_argument("--q_backend", type=str, default="fake", choices=["fake", "real"])
+parser.add_argument(
+    "--calib_data",
+    type=str,
+    default="manta",
+    choices=["pileval", "manta", "c4", "manta_c4"],
+    help="calibration dataset for AWQ search",
+)
+parser.add_argument("--n_samples", type=int, default=256, help="number of calibration samples")
+parser.add_argument("--seqlen", type=int, default=512, help="calibration sequence length")
 # save/load real quantized weights
 parser.add_argument("--dump_quant", type=str, default=None, help="save quantized model")
 parser.add_argument(
@@ -205,8 +214,9 @@ def build_model_and_enc(model_path, dtype):
                 enc,
                 w_bit=args.w_bit,
                 q_config=q_config,
-                n_samples=128,
-                seqlen=512,
+                n_samples=args.n_samples,
+                seqlen=args.seqlen,
+                calib_data=args.calib_data,
             )
             if args.dump_awq:
                 dirpath = os.path.dirname(args.dump_awq)
